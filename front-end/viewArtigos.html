@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <title>Detalhes do Artigo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .blog-card {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .blog-card img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .blog-card h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .blog-card p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link active" href="main.html">Home</a>
+                <a class="nav-item nav-link" href="viewArtigos.html">Visualizar Artigos</a>
+                <a class="nav-item nav-link" href="addArtigos.html">Adicionar Artigos</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div id="artigo-details" class="blog-card">
+            <img id="artigo-image" src="" alt="" style="margin-bottom: 10px;">
+            <h2 id="artigo-title"></h2>
+            <p id="artigo-content"></p>
+            <div>
+                <button id="delete-button" class="btn btn-danger">Excluir</button>
+                <button id="update-button" class="btn btn-primary">Atualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Obtém o ID do artigo da URL
+        const artigoId = getArtigoIdFromURL();
+
+        // Faz a requisição GET para obter as informações do artigo específico
+        axios.get('http://localhost:8080/artigos/' + artigoId)
+            .then(function (response) {
+                // Manipula os dados recebidos da API
+                var artigo = response.data;
+
+                // Preenche os dados do artigo no card
+                document.getElementById('artigo-image').src = artigo.imagemURL;
+                document.getElementById('artigo-title').textContent = artigo.Titulo;
+                document.getElementById('artigo-content').innerHTML = artigo.texto;
+
+                // Configura o botão de delete
+                document.getElementById('delete-button').addEventListener('click', function () {
+                    axios.delete('http://localhost:8080/artigos/' + artigoId)
+                        .then(function (response) {
+                            console.log(response.data);
+                            alert('Artigo excluído com sucesso');
+                            window.location.href = 'viewArtigos.html'; // Redireciona para a página de visualização de artigos
+                        })
+                        .catch(function (error) {
+                            console.error(error);
+                            alert('Erro ao excluir o artigo');
+                        });
+                });
+
+                // Configura o botão de update
+                document.getElementById('update-button').addEventListener('click', function () {
+                    var newTitulo = prompt('Digite o novo título:');
+                    var newTexto = prompt('Digite o novo texto:');
+
+                    var updatedData = {
+                        Titulo: newTitulo,
+                        texto: newTexto
+                    };
+
+                    axios.put('http://localhost:8080/artigos/' + artigoId, updatedData)
+                        .then(function (response) {
+                            console.log(response.data);
+                            alert('Artigo atualizado com sucesso');
+                            window.location.reload(); // Recarrega a página para exibir os dados atualizados
+                        })
+                        .catch(function (error) {
+                            console.error(error);
+                            alert('Erro ao atualizar o artigo');
+                        });
+                });
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+
+        function getArtigoIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+    </script>
+</body>
+
+</html>

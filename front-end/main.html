@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-item nav-link active" href="main.html">Home</a>
+                <a class="nav-item nav-link" href="viewArtigos.html">Visualizar Artigos</a>
+                <a class="nav-item nav-link" href="addArtigos.html">Adicionar Artigos</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1>View Artigos</h1>
+
+        <div class="row" id="artigos-container"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+    <script>
+        function getArtigoIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        function limitarTexto(texto, limite) {
+            if (texto.length > limite) {
+                return texto.substring(0, limite) + '...';
+            }
+            return texto;
+        }
+
+        // Faz a requisição GET para obter os artigos
+        axios.get('http://localhost:8080/artigos')
+            .then(function (response) {
+                // Manipula os dados recebidos da API
+                var artigos = response.data;
+
+                // Insere os artigos na página
+                var artigosContainer = document.getElementById('artigos-container');
+                artigos.forEach(function (artigo) {
+                    var colDiv = document.createElement('div');
+                    colDiv.className = 'col-md-6';
+
+                    var cardDiv = document.createElement('div');
+                    cardDiv.className = 'card';
+
+                    var cardBodyDiv = document.createElement('div');
+                    cardBodyDiv.className = 'card-body';
+
+                    var titleH5 = document.createElement('h5');
+                    titleH5.className = 'card-title';
+                    titleH5.innerHTML = artigo.Titulo;
+                    
+                    var contentDiv = document.createElement('div');
+                    contentDiv.className = 'card-text';
+                    var limiteCaracteres = 100; // Limite de caracteres desejado
+                    var textoExibicao = limitarTexto(artigo.texto, limiteCaracteres);
+                    contentDiv.innerHTML = textoExibicao;
+
+                    var readMoreLink = document.createElement('a');
+                    readMoreLink.className = 'btn btn-primary';
+                    readMoreLink.href = './viewArtigos.html?id=' + artigo.id;
+                    readMoreLink.textContent = 'Leia Mais';
+
+                    cardBodyDiv.appendChild(titleH5);
+                    cardBodyDiv.appendChild(contentDiv);
+                    cardBodyDiv.appendChild(readMoreLink);
+
+                    cardDiv.appendChild(cardBodyDiv);
+
+                    colDiv.appendChild(cardDiv);
+
+                    artigosContainer.appendChild(colDiv);
+                });
+            })
+            .catch(function (error) {
+                console.error(error);
+            });
+    </script>
+</body>
+
+</html>
